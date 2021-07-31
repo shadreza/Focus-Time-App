@@ -1,7 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState, useRef } from 'react';
 import { SafeAreaView, StyleSheet, TextInput, Text, View, Image, TouchableOpacity  } from 'react-native';
- 
+import { FocusAndTimer } from './FocusAndTimer';
+
 export default function App() {
 
   // refs
@@ -18,8 +19,9 @@ export default function App() {
   // functions
 
   const clearTheInput = () => {
-    if (inputFieldRef !== undefined) {
-      inputFieldRef.current.clear();
+    const item = inputFieldRef.current;
+    if (item !== undefined) {
+      item.clear();
     }
   }
 
@@ -38,9 +40,10 @@ export default function App() {
           }
         ]
       )
+      clearTheInput()
       setInputField('')
       setKey(key+1)
-      clearTheInput()
+
     }
   }
 
@@ -66,7 +69,7 @@ export default function App() {
         {
           focusingArray.length > 0 ? 
             (
-              <View>
+              <View style={styles.focusingStuff}>
                 {
                   focusingArray.map(item => (<Text key={item.key}>{item?.name}</Text>))
                 }
@@ -78,6 +81,9 @@ export default function App() {
             )
         }
       </View>
+
+      <FocusAndTimer info={{name: 'one', timer: defaultTimer}} />
+
       <StatusBar style="auto" />
     </View>
   );
@@ -119,6 +125,11 @@ const styles = StyleSheet.create({
   },
   focusedArrayView: {
     marginTop: '5%',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    alignItems: 'center',
+  },
+  focusingStuff: {
     justifyContent: 'center',
     alignSelf: 'center',
     alignItems: 'center',
