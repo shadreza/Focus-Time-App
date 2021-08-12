@@ -1,16 +1,50 @@
-import React, { useContext } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView  } from 'react-native';
-import { ContextForHomePageOrNot, logoUrl, removeImageUrl } from '../../App';
+import React, { useContext, useRef } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, TextInput  } from 'react-native';
+import { addImageUrl, ContextForAllTask, ContextForCurrentTask, ContextForHomePageOrNot, defaultTime, logoUrl, removeImageUrl } from '../../App';
 
 const Homepage = () => {
 
     const HomePageContext = useContext(ContextForHomePageOrNot)
+    const currentTask = useContext(ContextForCurrentTask)
+    const allTask = useContext(ContextForAllTask)
+
+    const inputRef = useRef(null)
 
     const toggleBetweenHomeAndTimer = () => {
         HomePageContext[1]( ! HomePageContext[0] )
     }
 
-    const focusTasks = [1,2,3,4,1,2,3,4]
+    const generateUniqueKey = () => {
+        const d = new Date
+        return d.getMilliseconds()
+    }
+
+    const addToCurrentTask = ( task ) => {
+        currentTask[1](task)
+        setTimeout(() => {
+            toggleBetweenHomeAndTimer()
+        }, 1000);
+    }
+
+    const addToAllTask = () => {
+        const name = inputRef.current.value
+        const TASK = {
+            name : name,
+            totalTime : defaultTime,
+            timeSpent : 0,
+            key : generateUniqueKey()
+        }
+        allTask[1]( [  TASK  , ...allTask[0] ] )
+        currentTask[1](TASK)
+        setTimeout(() => {
+            toggleBetweenHomeAndTimer()
+        }, 1000);
+    }
+
+    const removeTask = (key) => {
+        const newTaskArray = allTask[0].filter(task => task.key !== key)
+        allTask[1](newTaskArray)
+    }
 
     return (
         <View style={styles.homeMainContainer}>
@@ -25,16 +59,16 @@ const Homepage = () => {
                 <Text style={styles.sideLine}>The App lets you focus on your tasks</Text>
             </View>
             {
-                focusTasks.length >0 && 
+                allTask[0].length > 0 && 
                     <View style={styles.allFocusTasksSection}>
                         <Text style={styles.allFocusSectionText}>Tasks that demand your focus</Text>
                         <ScrollView style={styles.allFocusScroll}>
                             {
-                                focusTasks.map(task =>
-                                    <TouchableOpacity>
+                                allTask[0].map(task =>
+                                    <TouchableOpacity key={task.key} onPress={()=>{addToCurrentTask(task)}}>
                                         <View style={styles.singleTask}>
-                                            <Text style={styles.singleTaskName}>{task}</Text>
-                                            <TouchableOpacity>
+                                            <Text style={styles.singleTaskName}>{task.name}</Text>
+                                            <TouchableOpacity onPress={()=>{removeTask(task.key)}}>
                                                 <Image 
                                                     source={{
                                                         uri : removeImageUrl
@@ -49,7 +83,24 @@ const Homepage = () => {
                         </ScrollView>
                     </View>
             }
-            
+            <View style={styles.inputView}>
+                <Text style={styles.addingText}>Add the task to focus on</Text>
+                <View style={styles.inputSection}>
+                    <TextInput 
+                        placeholder="Type your task!"
+                        style={styles.inputBox}
+                        ref={inputRef}
+                    />
+                    <TouchableOpacity onPress={()=>{addToAllTask()}}>
+                        <Image 
+                            source={{
+                                uri : addImageUrl
+                            }} 
+                            style={styles.addImage}
+                        />
+                    </TouchableOpacity>
+                </View>
+            </View>
         </View>
     );
 };
@@ -69,7 +120,7 @@ const styles = StyleSheet.create({
   },
   header: {
     color: '#A73489',
-    fontSize: 26,
+    fontSize: 22,
     marginTop: 10,
   },
   sideLine: {
@@ -108,5 +159,33 @@ const styles = StyleSheet.create({
   removeImage: {
     width: 15,
     height: 15,
+  },
+  addImage: {
+    width: 25,
+    height: 25,
+    marginLeft: 10
+  },
+  inputSection: {
+    marginTop: 15,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  inputBox: {
+    padding: 4,
+    backgroundColor: 'white',
+    borderRadius: 8,
+    fontSize: 15,
+    maxWidth: '70%',
+    minWidth: '50%',
+  },
+  inputView: {
+    marginTop: 50,
+    justifyContent: 'center',
+    textAlign: 'center',
+    alignItems: 'center',
+  },
+  addingText: {
+    color: '#368B85',
+    fontSize: 18,
   },
 });
