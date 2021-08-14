@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { logoUrl } from '../../App';
+import { View, Text, StyleSheet, Image } from 'react-native';
+import { logoUrl } from '../Default Values/DefaultValues'
 
 const LandingPage = () => {
 

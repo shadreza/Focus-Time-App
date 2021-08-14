@@ -1,6 +1,7 @@
-import React, { useContext, useRef } from 'react';
+import React, { useContext, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, TextInput  } from 'react-native';
-import { addImageUrl, ContextForAllTask, ContextForCurrentTask, ContextForHomePageOrNot, defaultTime, logoUrl, removeImageUrl } from '../../App';
+import {  ContextForAllTask, ContextForCurrentTask, ContextForHomePageOrNot } from '../../App';
+import {addImageUrl, defaultTime, logoUrl, removeImageUrl} from '../Default Values/DefaultValues';
 
 const Homepage = () => {
 
@@ -8,7 +9,7 @@ const Homepage = () => {
     const currentTask = useContext(ContextForCurrentTask)
     const allTask = useContext(ContextForAllTask)
 
-    const inputRef = useRef(null)
+    const [inputText, setInputText] = useState('')
 
     const toggleBetweenHomeAndTimer = () => {
         HomePageContext[1]( ! HomePageContext[0] )
@@ -27,9 +28,15 @@ const Homepage = () => {
     }
 
     const addToAllTask = () => {
-        const name = inputRef.current.value
+      
+        if(inputText === null || inputText === undefined || inputText.trim().length <= 0) {
+          // pop modal
+          alert('please insert a valid task to focus')
+          return;
+        }
+
         const TASK = {
-            name : name,
+            name : inputText,
             totalTime : defaultTime,
             timeSpent : 0,
             key : generateUniqueKey()
@@ -89,7 +96,7 @@ const Homepage = () => {
                     <TextInput 
                         placeholder="Type your task!"
                         style={styles.inputBox}
-                        ref={inputRef}
+                        onChangeText={setInputText}
                     />
                     <TouchableOpacity onPress={()=>{addToAllTask()}}>
                         <Image 
