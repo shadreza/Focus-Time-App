@@ -1,5 +1,5 @@
-import React, { useContext, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, TextInput  } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, TextInput, Keyboard } from 'react-native';
 import {  ContextForAllTask, ContextForCurrentTask, ContextForHomePageOrNot } from '../../App';
 import {addImageUrl, defaultTime, logoUrl, removeImageUrl} from '../Default Values/DefaultValues';
 
@@ -10,6 +10,31 @@ const Homepage = () => {
     const allTask = useContext(ContextForAllTask)
 
     const [inputText, setInputText] = useState('')
+    const [keyboardStatus, setKeyboardStatus] = useState(false)
+    const [shouldFloatOrNot, setShouldFloatOrNot] = useState(false)
+    
+    const _keyboardDidShow = () => {
+      setKeyboardStatus(true)
+      if(allTask[0].length > 0) {
+        setShouldFloatOrNot(true)
+      } else {
+        setShouldFloatOrNot(false)
+      }
+    }
+    const _keyboardDidHide = () => {
+      setKeyboardStatus(false)
+      setShouldFloatOrNot(false)
+    }
+
+    useEffect(() => {
+      Keyboard.addListener("keyboardDidShow", _keyboardDidShow);
+      Keyboard.addListener("keyboardDidHide", _keyboardDidHide);
+      // cleanup function
+      return () => {
+        Keyboard.removeListener("keyboardDidShow", _keyboardDidShow);
+        Keyboard.removeListener("keyboardDidHide", _keyboardDidHide);
+      };
+    }, []);
 
     const toggleBetweenHomeAndTimer = () => {
         HomePageContext[1]( ! HomePageContext[0] )
@@ -22,13 +47,11 @@ const Homepage = () => {
 
     const addToCurrentTask = ( task ) => {
         currentTask[1](task)
-        setTimeout(() => {
-            toggleBetweenHomeAndTimer()
-        }, 1000);
+        toggleBetweenHomeAndTimer()
     }
 
     const addToAllTask = () => {
-      
+
         if(inputText === null || inputText === undefined || inputText.trim().length <= 0) {
           // pop modal
           alert('please insert a valid task to focus')
@@ -43,9 +66,7 @@ const Homepage = () => {
         }
         allTask[1]( [  TASK  , ...allTask[0] ] )
         currentTask[1](TASK)
-        setTimeout(() => {
-            toggleBetweenHomeAndTimer()
-        }, 1000);
+        toggleBetweenHomeAndTimer()
     }
 
     const removeTask = (key) => {
@@ -66,7 +87,7 @@ const Homepage = () => {
                 <Text style={styles.sideLine}>The App lets you focus on your tasks</Text>
             </View>
             {
-                allTask[0].length > 0 && 
+                allTask[0].length > 0 ? 
                     <View style={styles.allFocusTasksSection}>
                         <Text style={styles.allFocusSectionText}>Tasks that demand your focus</Text>
                         <ScrollView style={styles.allFocusScroll}>
@@ -89,8 +110,13 @@ const Homepage = () => {
                             }
                         </ScrollView>
                     </View>
+                    :
+                    <View style={styles.noTasksView}>
+                      <Text style={styles.noTasksText}>No tasks set yet!</Text>
+                    </View>
             }
-            <View style={styles.inputView}>
+
+            <View style={shouldFloatOrNot === false ? styles.inputView : styles.inputViewFloat}>
                 <Text style={styles.addingText}>Add the task to focus on</Text>
                 <View style={styles.inputSection}>
                     <TextInput 
@@ -137,6 +163,7 @@ const styles = StyleSheet.create({
   },
   allFocusTasksSection: {
     marginTop: 70,
+    marginBottom: 60 ,
     alignItems: 'center',
   },
   singleTask: {
@@ -154,6 +181,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginLeft: 'auto',
     marginRight: 'auto',
+    fontSize: 16,
   },
   allFocusSectionText: {
     color: '#035397',
@@ -166,6 +194,7 @@ const styles = StyleSheet.create({
   removeImage: {
     width: 15,
     height: 15,
+    margin: 4,
   },
   addImage: {
     width: 25,
@@ -186,7 +215,16 @@ const styles = StyleSheet.create({
     minWidth: '50%',
   },
   inputView: {
-    marginTop: 50,
+    justifyContent: 'center',
+    textAlign: 'center',
+    alignItems: 'center',
+    marginBottom: 'auto', 
+  },
+  inputViewFloat: {
+    marginTop: 10,
+    position: 'relative',
+    bottom: 140,
+    flexDirection: 'column',
     justifyContent: 'center',
     textAlign: 'center',
     alignItems: 'center',
@@ -194,5 +232,13 @@ const styles = StyleSheet.create({
   addingText: {
     color: '#368B85',
     fontSize: 18,
+  },
+  noTasksView: {
+    marginTop: 60,
+    marginBottom: 60,
+  },
+  noTasksText: {
+    fontSize: 16,
+    color: 'gray',
   },
 });
