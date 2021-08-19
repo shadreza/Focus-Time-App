@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, TextInput, Keyboard } from 'react-native';
-import {  ContextForAllTask, ContextForCurrentTask, ContextForHomePageOrNot } from '../../App';
+import {  ContextForAllTask, ContextForCurrentTask, ContextForHomePageOrNot, ContextForUpdatingTaskAndTime } from '../../App';
 import {addImageUrl, defaultTime, logoUrl, removeImageUrl} from '../Default Values/DefaultValues';
 
 const Homepage = () => {
@@ -8,6 +8,7 @@ const Homepage = () => {
     const HomePageContext = useContext(ContextForHomePageOrNot)
     const currentTask = useContext(ContextForCurrentTask)
     const allTask = useContext(ContextForAllTask)
+    const UpdatingTaskAndTime = useContext(ContextForUpdatingTaskAndTime)
 
     const [inputText, setInputText] = useState('')
     const [keyboardStatus, setKeyboardStatus] = useState(false)
@@ -37,6 +38,14 @@ const Homepage = () => {
     }, []);
 
     const toggleBetweenHomeAndTimer = () => {
+        if(UpdatingTaskAndTime[0].length > 0) {
+          for(let i=0; i<allTask[0].length; i++) {
+            if(allTask[i].name === UpdatingTaskAndTime[0].name && allTask[i].key === UpdatingTaskAndTime[0].key) {
+              allTask[i].currentTimeRemainingInSec = UpdatingTaskAndTime[0].timeRemaining
+            }
+          }
+        }
+        
         HomePageContext[1]( ! HomePageContext[0] )
     }
 
@@ -61,7 +70,7 @@ const Homepage = () => {
         const TASK = {
             name : inputText,
             totalTime : defaultTime,
-            timeSpent : 0,
+            currentTimeRemainingInSec : defaultTime * 60,
             key : generateUniqueKey()
         }
         allTask[1]( [  TASK  , ...allTask[0] ] )

@@ -8,12 +8,14 @@ import LandingPage from './Components/LandingPage/LandingPage';
 export const ContextForHomePageOrNot = createContext([])
 export const ContextForCurrentTask = createContext([])
 export const ContextForAllTask = createContext([])
+export const ContextForUpdatingTaskAndTime = createContext([])
 
 const App = () => {
 
   const [onHomePageOrNot, setOnHomePageOrNot] = useState(true)
   const [onLandingPageOrNot, setOnLandingPageOrNot] = useState(true)
   const [currentTask, setCurrentTask] = useState({})
+  const [updatingTaskAndTime, setUpdatingTaskAndTime] = useState({})
   const [allTask, setAllTask] = useState([])
 
   useEffect(() =>{
@@ -26,6 +28,7 @@ const App = () => {
     <ContextForHomePageOrNot.Provider value={[onHomePageOrNot, setOnHomePageOrNot]}>
     <ContextForCurrentTask.Provider value={[currentTask, setCurrentTask]}>
     <ContextForAllTask.Provider value={[allTask, setAllTask]}>
+    <ContextForUpdatingTaskAndTime.Provider value={[allTask, setAllTask]}>
       <View style={styles.appContainer}>
         {
           onLandingPageOrNot === true ? 
@@ -34,10 +37,11 @@ const App = () => {
             onHomePageOrNot === true ? 
               <Homepage />
               :
-              <TimerPage />
+              <TimerPage isPaused={false}/>
         }
         <StatusBar style="auto" />
       </View>
+    </ContextForUpdatingTaskAndTime.Provider>
     </ContextForAllTask.Provider>
     </ContextForCurrentTask.Provider>
     </ContextForHomePageOrNot.Provider>

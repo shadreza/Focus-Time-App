@@ -1,23 +1,24 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Button } from 'react-native';
-import { ContextForHomePageOrNot, ContextForCurrentTask} from '../../App';    
+import { ContextForHomePageOrNot, ContextForCurrentTask, ContextForUpdatingTaskAndTime} from '../../App';    
 
-
-
-const TimerPage = () => {
+const TimerPage = ({isPaused}) => {
 
     const HomePageContext = useContext(ContextForHomePageOrNot)
     const CurrentTaskContext = useContext(ContextForCurrentTask)
+    const UpdatingTaskAndTime = useContext(ContextForUpdatingTaskAndTime)
+    
     const task = CurrentTaskContext[0]
 
-    let time = (task.totalTime * 60) - (task.timeSpent) 
+    const interval = useRef(null)
+
+    let time = task.currentTimeRemainingInSec
 
     const [minute, setMinute] = useState(Math.floor(time/60))
     const [second, setSecond] = useState(time%60)
-    const [color, setColor] = useState('red')
 
     const setTimer = () => {
-        if(time <=0 ) {
+        if(time < 0 ) {
             return
         }
         if(second<10) {
@@ -32,18 +33,36 @@ const TimerPage = () => {
             setMinute(Math.floor(time/60))
         }
         
-        time = time - 1;
+        time = time - 1
+        task.currentTimeRemainingInSec = time 
+        CurrentTaskContext[1](task)
     }
 
     useEffect(() => {
-        if(time > 0) {
-            setInterval( setTimer , 1000)
-        } else {
-            return
+
+        if (isPaused) {
+            return ;
         }
-    }, [])
+
+        interval.current = setInterval(setTimer , 1000)
+
+        return () => clearInterval(interval.current)
+
+        // if(time > 0) {
+        //     setInterval( setTimer , 1000)
+        // } else {
+        //     return
+        // }
+    }, [isPaused])
 
     const toggleBetweenHomeAndTimer = () => {
+
+        const currentTaskAndTime = {
+            task : task.name,
+            key  : task.key,
+            timeRemaining : task.currentTimeRemainingInSec
+        }
+        UpdatingTaskAndTime[1](currentTaskAndTime)
         HomePageContext[1](!HomePageContext[0])
     }
 
