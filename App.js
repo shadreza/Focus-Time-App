@@ -28,7 +28,7 @@ const App = () => {
     <ContextForHomePageOrNot.Provider value={[onHomePageOrNot, setOnHomePageOrNot]}>
     <ContextForCurrentTask.Provider value={[currentTask, setCurrentTask]}>
     <ContextForAllTask.Provider value={[allTask, setAllTask]}>
-    <ContextForUpdatingTaskAndTime.Provider value={[allTask, setAllTask]}>
+    <ContextForUpdatingTaskAndTime.Provider value={[updatingTaskAndTime, setUpdatingTaskAndTime]}>
       <View style={styles.appContainer}>
         {
           onLandingPageOrNot === true ? 

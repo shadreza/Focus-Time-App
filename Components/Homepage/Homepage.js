@@ -49,6 +49,12 @@ const Homepage = () => {
         HomePageContext[1]( ! HomePageContext[0] )
     }
 
+    const clearAllTasks = () => {
+      currentTask[1]({})
+      allTask[1]([])
+      UpdatingTaskAndTime[1]({})
+    }
+
     const generateUniqueKey = () => {
         const d = new Date
         return d.getMilliseconds()
@@ -75,6 +81,7 @@ const Homepage = () => {
         }
         allTask[1]( [  TASK  , ...allTask[0] ] )
         currentTask[1](TASK)
+
         toggleBetweenHomeAndTimer()
     }
 
@@ -104,7 +111,12 @@ const Homepage = () => {
                                 allTask[0].map(task =>
                                     <TouchableOpacity key={task.key} onPress={()=>{addToCurrentTask(task)}}>
                                         <View style={styles.singleTask}>
-                                            <Text style={styles.singleTaskName}>{task.name}</Text>
+                                            <Text style={
+                                              task.currentTimeRemainingInSec===0 ? 
+                                                styles.singleTaskNameDone
+                                                :
+                                                styles.singleTaskNameOnGoing
+                                            }>{task.name}</Text>
                                             <TouchableOpacity onPress={()=>{removeTask(task.key)}}>
                                                 <Image 
                                                     source={{
@@ -118,6 +130,11 @@ const Homepage = () => {
                                 )
                             }
                         </ScrollView>
+                        <View style={styles.clearTaskView}>
+                          <TouchableOpacity onPress={()=> clearAllTasks()}>
+                            <Text>Clear all tasks</Text>
+                          </TouchableOpacity>
+                        </View>
                     </View>
                     :
                     <View style={styles.noTasksView}>
@@ -185,8 +202,15 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row'
   },
-  singleTaskName: {
+  singleTaskNameOnGoing: {
     color: 'tomato',
+    fontWeight: 'bold',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    fontSize: 16,
+  },
+  singleTaskNameDone: {
+    color: 'green',
     fontWeight: 'bold',
     marginLeft: 'auto',
     marginRight: 'auto',
@@ -197,9 +221,10 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   allFocusScroll: {
-    maxHeight: '60%',
+    maxHeight: '50%',
     marginTop: 10,
   },
+
   removeImage: {
     width: 15,
     height: 15,
@@ -249,5 +274,11 @@ const styles = StyleSheet.create({
   noTasksText: {
     fontSize: 16,
     color: 'gray',
+  },
+  clearTaskView: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: '#FDD2BF',
+    borderRadius: 8, 
   },
 });

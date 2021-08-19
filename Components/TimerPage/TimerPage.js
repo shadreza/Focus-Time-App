@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Button } from 'react-native';
 import { ContextForHomePageOrNot, ContextForCurrentTask, ContextForUpdatingTaskAndTime} from '../../App';    
+import {ProgressBar , Colors} from 'react-native-paper';
 
 const TimerPage = ({isPaused}) => {
 
@@ -13,12 +14,16 @@ const TimerPage = ({isPaused}) => {
     const interval = useRef(null)
 
     let time = task.currentTimeRemainingInSec
+    let defaultTime = task.totalTime
+    let progress = time / (defaultTime * 60)
 
     const [minute, setMinute] = useState(Math.floor(time/60))
     const [second, setSecond] = useState(time%60)
 
     const setTimer = () => {
-        if(time < 0 ) {
+        if(time <= 0 ) {
+            setSecond(parseInt('00'))
+            setMinute(parseInt('00'))
             return
         }
         if(second<10) {
@@ -34,6 +39,9 @@ const TimerPage = ({isPaused}) => {
         }
         
         time = time - 1
+        if(time < 0) {
+            return
+        }
         task.currentTimeRemainingInSec = time 
         CurrentTaskContext[1](task)
     }
@@ -45,14 +53,10 @@ const TimerPage = ({isPaused}) => {
         }
 
         interval.current = setInterval(setTimer , 1000)
+        progress = time / (defaultTime * 60)
 
         return () => clearInterval(interval.current)
 
-        // if(time > 0) {
-        //     setInterval( setTimer , 1000)
-        // } else {
-        //     return
-        // }
     }, [isPaused])
 
     const toggleBetweenHomeAndTimer = () => {
@@ -60,7 +64,8 @@ const TimerPage = ({isPaused}) => {
         const currentTaskAndTime = {
             task : task.name,
             key  : task.key,
-            timeRemaining : task.currentTimeRemainingInSec
+            timeRemaining : task.currentTimeRemainingInSec,
+            totalTime : defaultTime,
         }
         UpdatingTaskAndTime[1](currentTaskAndTime)
         HomePageContext[1](!HomePageContext[0])
@@ -68,6 +73,7 @@ const TimerPage = ({isPaused}) => {
 
     return (
         <View style={styles.timerMainContainer}>
+
             <View style={styles.timerBody}>
                 <Text style={styles.time}>
                     <Text style={ minute<5 ? styles.redTime : styles.blackTime}>
@@ -79,6 +85,11 @@ const TimerPage = ({isPaused}) => {
                     </Text>
                 </Text>
             </View>
+
+            <View style={styles.progressBarContainer}>
+                <ProgressBar style={styles.progressBar} progress={progress} visible={true}  color={progress > 0.6 ? Colors.green800 : progress > 0.3 ? Colors.blue800 : Colors.red800} />
+            </View>
+            
             <Text style={styles.textFoot}>Focusing on ...</Text>
             <Text style={styles.textHead}>{task.name}</Text>
             <TouchableOpacity onPress={toggleBetweenHomeAndTimer}>
@@ -137,5 +148,21 @@ const styles = StyleSheet.create({
         fontSize: 60,
         fontWeight: 'bold',
         padding: 20
+    },
+    progressBarContainer: {
+        width : 310,
+        height: 30,
+        padding: 10,
+        margin: 10,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'white',
+        borderRadius: 10,
+    },
+    progressBar: {
+        width : 300,
+        height: 20,
+        borderRadius: 8,
     },
 });
