@@ -48,11 +48,6 @@ const TimerPage = () => {
         CurrentTaskContext[1](task)
     }
 
-    const startAgain = () => {
-        time = defaultTime
-        setStartResumePauseState(1)
-    }
-
     useEffect(() => {
 
         if (startResumePauseState === 0) {
@@ -113,16 +108,15 @@ const TimerPage = () => {
                                 <TouchableOpacity onPress={()=> setStartResumePauseState(2)}>
                                     <Text style={styles.fontStyle}>Resume</Text>
                                 </TouchableOpacity>
+                            :
+                            progress === 0 ?
+                                <TouchableOpacity onPress={()=> toggleBetweenHomeAndTimer()}>
+                                    <Text style={styles.fontStyle}>Done</Text>
+                                </TouchableOpacity>
                                 :
-                                progress === 0 ? 
-                                    <TouchableOpacity onPress={()=> {startAgain()}}>
-                                        <Text style={styles.fontStyle}>Start Again</Text>
-                                    </TouchableOpacity>
-                                    :
-                                    <TouchableOpacity onPress={()=> setStartResumePauseState(0)}>
-                                        <Text style={styles.fontStyle}>Pause</Text>
-                                    </TouchableOpacity>
-
+                                <TouchableOpacity onPress={()=> setStartResumePauseState(0)}>
+                                    <Text style={styles.fontStyle}>Pause</Text>
+                                </TouchableOpacity>
                     }  
             </View>
             
