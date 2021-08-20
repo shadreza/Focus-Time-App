@@ -37,7 +37,7 @@ const App = () => {
             onHomePageOrNot === true ? 
               <Homepage />
               :
-              <TimerPage isPaused={false}/>
+              <TimerPage/>
         }
         <StatusBar style="auto" />
       </View>

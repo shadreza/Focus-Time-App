@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Button } from 'react-native';
 import { ContextForHomePageOrNot, ContextForCurrentTask, ContextForUpdatingTaskAndTime} from '../../App';    
 import {ProgressBar , Colors} from 'react-native-paper';
 
-const TimerPage = ({isPaused}) => {
+const TimerPage = () => {
 
     const HomePageContext = useContext(ContextForHomePageOrNot)
     const CurrentTaskContext = useContext(ContextForCurrentTask)
@@ -19,6 +19,8 @@ const TimerPage = ({isPaused}) => {
 
     const [minute, setMinute] = useState(Math.floor(time/60))
     const [second, setSecond] = useState(time%60)
+
+    const [startResumePauseState, setStartResumePauseState] = useState(0)
 
     const setTimer = () => {
         if(time <= 0 ) {
@@ -46,9 +48,14 @@ const TimerPage = ({isPaused}) => {
         CurrentTaskContext[1](task)
     }
 
+    const startAgain = () => {
+        time = defaultTime
+        setStartResumePauseState(1)
+    }
+
     useEffect(() => {
 
-        if (isPaused) {
+        if (startResumePauseState === 0) {
             return ;
         }
 
@@ -57,7 +64,7 @@ const TimerPage = ({isPaused}) => {
 
         return () => clearInterval(interval.current)
 
-    }, [isPaused])
+    }, [startResumePauseState])
 
     const toggleBetweenHomeAndTimer = () => {
 
@@ -87,13 +94,41 @@ const TimerPage = ({isPaused}) => {
             </View>
 
             <View style={styles.progressBarContainer}>
-                <ProgressBar style={styles.progressBar} progress={progress} visible={true}  color={progress > 0.6 ? Colors.green800 : progress > 0.3 ? Colors.blue800 : Colors.red800} />
+                <ProgressBar style={styles.progressBar} progress={progress} visible={true}  color={progress > 0.67 ? Colors.green600 : progress > 0.33 ? Colors.blue600 : Colors.red600} />
+            </View>
+
+            <View style={{margin:10, padding:10}}>
+                <Text style={styles.textFoot}>Focusing on ...</Text>
+                <Text style={styles.textHead}>{task.name}</Text>
+            </View>
+
+            <View style={{margin:10, padding:10, backgroundColor:'white', borderRadius: 10}}>
+                    {
+                        startResumePauseState === 0 ? 
+                            progress === 1 ?
+                                <TouchableOpacity onPress={()=> setStartResumePauseState(1)}>
+                                    <Text style={styles.fontStyle}>Start</Text>
+                                </TouchableOpacity>
+                                :
+                                <TouchableOpacity onPress={()=> setStartResumePauseState(2)}>
+                                    <Text style={styles.fontStyle}>Resume</Text>
+                                </TouchableOpacity>
+                                :
+                                progress === 0 ? 
+                                    <TouchableOpacity onPress={()=> {startAgain()}}>
+                                        <Text style={styles.fontStyle}>Start Again</Text>
+                                    </TouchableOpacity>
+                                    :
+                                    <TouchableOpacity onPress={()=> setStartResumePauseState(0)}>
+                                        <Text style={styles.fontStyle}>Pause</Text>
+                                    </TouchableOpacity>
+
+                    }  
             </View>
             
-            <Text style={styles.textFoot}>Focusing on ...</Text>
-            <Text style={styles.textHead}>{task.name}</Text>
-            <TouchableOpacity onPress={toggleBetweenHomeAndTimer}>
-                <Text>Toggle</Text>
+            
+            <TouchableOpacity onPress={toggleBetweenHomeAndTimer}  style={{margin:10, padding:10, backgroundColor:'white', borderRadius: 10}}>
+                <Text style={{fontWeight: 'bold', color:'red'}}>Exit</Text>
             </TouchableOpacity>
         </View>
     );
@@ -105,6 +140,9 @@ const styles = StyleSheet.create({
     timerMainContainer: {
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    fontStyle: {
+        fontWeight: 'bold',
     },
     textHead: {
         marginTop: 5,
